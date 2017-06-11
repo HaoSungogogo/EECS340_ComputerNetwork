@@ -1,0 +1,19 @@
+##########INTRODUCTION##########
+This tcp_module is capable for following things:
+
+a. If you've run ./start_minet.sh "tcp_server u <port>",  you should be able accept a connection from an nc on another machine, receive and print data from that nc client, and handle a close initiated by pressing ctrl-C on the nc client (a passive close from your module's perspective)
+
+b. If you've run ./start_minet.sh "tcp_client u <host_ip> <port>", you should be able to connect to a listening nc server on another machine, send data to that nc server for it (nc) to print, and handle a close initiated by pressing ctrl-D on the tcp_client window (an active close from your module's perspective).
+
+c. If you've run ./start_minet.sh "http_server1 u <port>", you should be able to connect to it from telnet on another machine and handle a GET request.
+
+############NOTION#############
+One thing needs to be mentioned is the ip_module doesn't always drop the first packet due to arp entry loss. That is sometimes the fisrt packet is dropped but some times it can be sent. So when the first is dropped, we need to send it twice and if not, we only need to send it once. This resend part is labled as "//Resend in CONNECT handler" and "//Resend in LISTEN handler". Please make sure tcp_module sends only one SYNACK or ACK and configure LISTEN_RESEND and CONNECT_RESEND in proper way.
+
+The Go-Back-N is tested via sending empty packet. We use ramdom() to generate a random number and devide it by LOSS_FACTOR to get the modulo. If the modulo is 0, we send empty packet by calling SendEmptyPacket(MinetHandle handle). When there is a timeout, we set the last_sent to last_acked. The SendPacket() function only cares about how much(size) to send and from which place(offset) to begin sending. This part is labled as "//Packet Loss". You can enable this by set PACKET_LOSS to 1.
+
+The default timeout is set to 10 second, the default time tries is set to 3 and the default packet loss rate is set to 1/8. You can change this by modifying rhe macro INIT_TIMER, INIT_TIMETRIES and LOSS_FACTOR.
+
+All of the macros appear above are available at the top of the code.
+
+The default tab width is 2.
